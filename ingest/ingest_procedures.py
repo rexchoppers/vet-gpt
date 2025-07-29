@@ -1,4 +1,7 @@
+import uuid
+
 from dotenv import load_dotenv
+from pypdf import PdfReader
 from qdrant_client.http.models import Distance, VectorParams
 from sentence_transformers import SentenceTransformer
 
@@ -48,6 +51,30 @@ for procedure_dir in procedures_dir.iterdir():
         for file_path in procedure_dir.glob("**/*"):
             if file_path.is_file():
                 print(f"  - File: {file_path.relative_to(procedure_dir)}")
+
+                pdf_reader = PdfReader(str(file_path))
+                text = " ".join(page.extract_text() for page in pdf_reader.pages if page.extract_text())
+
+                chunks = [text[i:i + 500] for i in range(0, len(text), 500)]
+
+                for chunk in chunks:
+                    embedding = model.encode(chunk).tolist()
+
+                    qdrant.upsert(
+                        collection_name="procedures",
+                        points=[
+                            {
+                                "id": str(uuid.uuid4()),
+                                "vector": embedding,
+                                "payload": {
+                                    "text": chunk,
+                                    "procedure": procedure_name,
+                                    "file_name": file_path.name,
+                                    "source": "application/pdf"
+                                }
+                            }
+                        ]
+                    )
 
 # Here’s the roadmap you’re on:
 #
