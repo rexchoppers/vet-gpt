@@ -79,18 +79,3 @@ for procedure_dir in procedures_dir.iterdir():
                             }
                         ]
                     )
-
-# Here’s the roadmap you’re on:
-#
-# Step	What You're Doing	Status
-# 1	FastAPI basic API	✅ Done
-# 2	Ingest vet PDF into Qdrant	✅ In progress
-# 3	Add embedding search to /ask	🔜 Next
-# 4	Connect to model (OpenAI or vLLM)	🔜
-# 5	Prompt construction (context + user question)	🔜
-# 6	Logging: token usage, latency	🔜
-# 7	Auth + optional UI	🔜
-#
-# Sorry so let's go back to this
-#
-# How does the model know what is an illness or procedure? Or will it not know or do I have to add metadata to this
