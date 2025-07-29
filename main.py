@@ -92,12 +92,14 @@ async def query(query: Query):
 
     output = llm(
         prompt_template,
-        max_tokens=500,  # Max tokens for the LLM's response
-        temperature=0.1,  # Controls creativity (0.0 for deterministic, 1.0 for very creative)
+        max_tokens=1000,  # Max tokens for the LLM's response
+        temperature=0.2,  # Controls creativity (0.0 for deterministic, 1.0 for very creative)
         stop=["<|endoftext|>", "<|end|>"],  # Important stop tokens for Phi-3 models
     )
 
     print("[LLM] Sent prompt to LLM...")
+
+    print(output["choices"])
 
     llm_response_text = output["choices"][0]["text"].strip()
 
