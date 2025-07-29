@@ -50,6 +50,10 @@ for procedure_dir in procedures_dir.iterdir():
         # Iterate through files in the procedure directory
         for file_path in procedure_dir.glob("**/*"):
             if file_path.is_file():
+                # If file ends with .txt, we can skip it
+                if file_path.suffix.lower() == ".txt":
+                    continue
+
                 print(f"  - File: {file_path.relative_to(procedure_dir)}")
 
                 pdf_reader = PdfReader(str(file_path))
