@@ -9,10 +9,6 @@ load_dotenv()
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# Iterate through documents in ../resources/procedures
-
-
-import os
 import sys
 from pathlib import Path
 

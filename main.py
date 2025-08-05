@@ -1,10 +1,7 @@
-import os
-
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
-from vllm import LLM
 from llama_cpp import Llama
 
 
@@ -25,9 +22,9 @@ LLM_MODEL_PATH = "./models/Phi-3-mini-128k-instruct.Q4_0.gguf"
 
 llm = Llama(
     model_path=LLM_MODEL_PATH,
-    n_ctx=4096,  # Phi-3-mini-128k-instruct supports 128K context. Be mindful of RAM usage.
+    n_ctx=4096,
     n_gpu_layers=0,  # Set to 0 for CPU-only inference. Set to -1 to offload all layers to GPU if available.
-    verbose=False  # Set to True for more detailed loading logs from llama_cpp
+    verbose=False
 )
 
 print(f"[LLM] Llama.cpp LLM Initialized from {LLM_MODEL_PATH}.")
@@ -41,11 +38,10 @@ async def query(query: Query):
     query_embedding = sentence_transformer.encode(query.q).tolist()
 
     search_results = qdrant.query_points(
-        collection_name="procedures",  # Ensure this matches your ingestion collection name
+        collection_name="procedures",
         query=query_embedding,
-        limit=5,  # Retrieve top 5 most similar chunks
-        with_payload=True,  # Ensure payload (metadata and text) is returned
-        # query_filter=qdrant_filter  # Apply the metadata filter
+        limit=5,
+        with_payload=True,
     )
 
     context_parts = []
@@ -55,7 +51,7 @@ async def query(query: Query):
         chunk_text = hit.payload.get("text", "N/A")
         procedure_name = hit.payload.get("procedure", "N/A")
         file_name = hit.payload.get("file_name", "N/A")
-        category = hit.payload.get("category", "N/A") # Assuming you added 'category' in ingestion
+        category = hit.payload.get("category", "N/A")
 
         # Format context for the LLM, including metadata
         context_parts.append(
@@ -86,23 +82,19 @@ async def query(query: Query):
     My Question: {query.q}<|end|>"""
 
     prompt_template = system_message + user_message + "<|assistant|>"
-    print(prompt_template)
 
     print("[LLM] Sending prompt to LLM...")
 
     output = llm(
         prompt_template,
-        max_tokens=1000,  # Max tokens for the LLM's response
-        temperature=0.2,  # Controls creativity (0.0 for deterministic, 1.0 for very creative)
-        stop=["<|endoftext|>", "<|end|>"],  # Important stop tokens for Phi-3 models
+        max_tokens=1000,
+        temperature=0.2,
+        stop=["<|endoftext|>", "<|end|>"],
     )
 
     print("[LLM] Sent prompt to LLM...")
 
-    print(output["choices"])
-
     llm_response_text = output["choices"][0]["text"].strip()
-
 
     print(llm_response_text)
 
