@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -23,8 +25,10 @@ LLM_MODEL_PATH = "./models/Phi-3-mini-128k-instruct.Q4_0.gguf"
 llm = Llama(
     model_path=LLM_MODEL_PATH,
     n_ctx=4096,
-    n_gpu_layers=0,  # Set to 0 for CPU-only inference. Set to -1 to offload all layers to GPU if available.
-    verbose=False
+    #n_gpu_layers=0, # CPU only
+    n_gpu_layers=-1,
+    n_threads=os.cpu_count(),
+    verbose=True
 )
 
 print(f"[LLM] Llama.cpp LLM Initialized from {LLM_MODEL_PATH}.")
